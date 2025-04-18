@@ -1,76 +1,35 @@
 package model;
 
 public class Customer {
-    private String orderId;
-    private String customerId;
-    private String customerName;
-    private int orderStatus;
-    private int orderQTY;
-    private double orderValue;
+    private String id;
+    private String name;
 
     public Customer() {
     }
 
-    public Customer(String customerId, String customerName, double orderValue) {
-        this.customerId = customerId;
-        this.customerName = customerName;
-        this.orderValue = orderValue;
+    public Customer(String id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
-    public Customer(String orderId, String customerId, String customerName, int orderStatus, int orderQTY, double orderValue) {
-        this.orderId = orderId;
-        this.customerId = customerId;
-        this.customerName = customerName;
-        this.orderStatus = orderStatus;
-        this.orderQTY = orderQTY;
-        this.orderValue = orderValue;
+    public String getId() {
+        return id;
     }
 
-    public String getOrderId() {
-        return orderId;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getCustomerId() {
-        return customerId;
+    public String getName() {
+        return name;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public int getOrderStatus() {
-        return orderStatus;
-    }
-
-    public int getOrderQTY() {
-        return orderQTY;
-    }
-
-    public double getOrderValue() {
-        return orderValue;
-    }
-
-    public void setCustomerId(String customerId) {
-        this.customerId = customerId;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
-    public void setOrderStatus(int orderStatus) {
-        this.orderStatus = orderStatus;
-    }
-
-    public void setOrderQTY(int orderQTY) {
-        this.orderQTY = orderQTY;
-    }
-
-    public void setOrderValue(double orderValue) {
-        this.orderValue = orderValue;
-    }
-
+    @Override
     public String toString() {
-        return STR."{ \{getOrderId()} - \{getCustomerId()} - \{getCustomerName()} - \{getOrderStatus()} - \{getOrderQTY()} - \{getOrderValue()} }";
+        return STR."Customer{id='\{id}\{'\''}, name='\{name}\{'\''}\{'}'}";
     }
 }
