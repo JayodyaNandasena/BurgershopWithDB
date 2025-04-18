@@ -8,6 +8,7 @@ public class Orders {
     private OrderStatus status;
     private int quantity;
     private double value;
+    private Customer customer;
 
     public Orders() {
     }
@@ -18,6 +19,15 @@ public class Orders {
         this.status = status;
         this.quantity = quantity;
         this.value = value;
+    }
+
+    public Orders(String id, String customerId, OrderStatus status, int quantity, double value, Customer customer) {
+        this.id = id;
+        this.customerId = customerId;
+        this.status = status;
+        this.quantity = quantity;
+        this.value = value;
+        this.customer = customer;
     }
 
     public String getId() {
@@ -58,6 +68,14 @@ public class Orders {
 
     public void setValue(double value) {
         this.value = value;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     @Override
