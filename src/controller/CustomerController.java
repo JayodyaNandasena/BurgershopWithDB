@@ -1,7 +1,7 @@
-package Controller;
+package controller;
 
-import DB.CustomerList;
-import Model.Customer;
+import db.CustomerList;
+import model.Customer;
 
 public class CustomerController {
 

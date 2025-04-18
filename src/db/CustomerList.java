@@ -1,6 +1,6 @@
-package DB;
+package db;
 
-import Model.Customer;
+import model.Customer;
 
 public class CustomerList {
     private Node first;

@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package View;
+package view;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -19,31 +14,28 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- *
- * @author Jayodya Chathumini
- */
-public class Search extends JFrame {
-    private JLabel lblTitle;
-    private JButton btnOrders,btnCustomers,btnBestCustomer,btnExit,btnHome;
+public class MainMenu extends JFrame {
 
-    public Search() {
-        setTitle("Search");
+    private JButton btnPlaceOrder,btnSearch,btnViewOrder,btnUpdateOrder,btnExit;
+    private JLabel lblMainMenu, lblImage;
+
+    public MainMenu() {
+        setTitle("Main Menu");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(700, 500);
         setLocationRelativeTo(null);
         setResizable(false);
         setLayout(null);
 
-        lblTitle = new JLabel("Search");
-        lblTitle.setFont(new Font("", Font.BOLD, 25));
-        lblTitle.setBounds(0, 0, 700, 50);
-        lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
-        lblTitle.setBackground(new Color(185, 82, 77));
-        lblTitle.setOpaque(true);
-        add(lblTitle);
+        lblMainMenu = new JLabel("iHungry Burgers");
+        lblMainMenu.setFont(new Font("", Font.BOLD, 25));
+        lblMainMenu.setBounds(0, 0, 700, 50);
+        lblMainMenu.setForeground(Color.white);
+        lblMainMenu.setVerticalAlignment(JLabel.CENTER);
+        lblMainMenu.setHorizontalAlignment(JLabel.CENTER);
+        lblMainMenu.setBackground(new Color(185, 82, 77));
+        lblMainMenu.setOpaque(true);
+        add(lblMainMenu);
         
         JPanel imagePanel = new JPanel();
         imagePanel.setBounds(0, 50, 350, 450);
@@ -59,37 +51,36 @@ public class Search extends JFrame {
             e.printStackTrace();
         }
         
-
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBounds(350, 50, 350, 450);
         buttonPanel.setBackground(new Color(215, 215, 215));
         buttonPanel.setLayout(null);
 
-        btnOrders = createStyledButton("Search Orders", 50, 100, 250, 30, 185, 82, 77, evt -> {
-            new SearchOrder().setVisible(true);
+        btnPlaceOrder = createStyledButton("Place order", 50, 70, 250, 30, evt -> {
             this.setVisible(false);
+            new PlaceOrder().setVisible(true);
         });
-        buttonPanel.add(btnOrders);
+        buttonPanel.add(btnPlaceOrder);
 
-        btnCustomers = createStyledButton("Search Customers", 50, 150, 250, 30, 185, 82, 77, evt -> {
-            new SearchCustomer().setVisible(true);
+        btnViewOrder = createStyledButton("View Orders", 50, 130, 250, 30, evt -> {
             this.setVisible(false);
+            new ViewOrders().setVisible(true);
         });
-        buttonPanel.add(btnCustomers);
+        buttonPanel.add(btnViewOrder);
 
-        btnBestCustomer = createStyledButton("Search Best Customer", 50, 200, 250, 30, 185, 82, 77, evt -> {
+        btnSearch = createStyledButton("Search", 50, 190, 250, 30, evt -> {
             this.setVisible(false);
-            new SearchBestCustomer().setVisible(true);
+            new Search().setVisible(true);
         });
-        buttonPanel.add(btnBestCustomer);
+        buttonPanel.add(btnSearch);
 
-        btnHome = createStyledButton("Back to home page", 130, 270, 170, 30, 155, 82, 77, evt -> {
+        btnUpdateOrder = createStyledButton("Update Order Details", 50, 250, 250, 30, evt -> {
             this.setVisible(false);
-            new MainMenu().setVisible(true);
+            new Update().setVisible(true);
         });
-        buttonPanel.add(btnHome);
+        buttonPanel.add(btnUpdateOrder);
 
-        btnExit = createStyledButton("Exit", 130, 320, 170, 30, 155, 82, 77, evt -> {
+        btnExit = createStyledButton("Exit", 220, 365, 100, 30, evt -> {
             System.exit(0);
         });
         buttonPanel.add(btnExit);
@@ -97,19 +88,18 @@ public class Search extends JFrame {
         add(buttonPanel);
         add(imagePanel);
 
-        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/search.png")));
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/MainMenu.png")));
 
     }
 
-    public JButton createStyledButton(String text, int x, int y, int width, int height, int r, int g, int b,
-            ActionListener actionListener) {
+    public JButton createStyledButton(String text, int x, int y, int width, int height, ActionListener actionListener) {
         JButton button = new JButton(text);
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
         button.setVerticalAlignment(JLabel.CENTER);
         button.setHorizontalAlignment(JLabel.CENTER);
-        button.setBackground(new Color(r, g, b));
+        button.setBackground(new Color(185, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);
