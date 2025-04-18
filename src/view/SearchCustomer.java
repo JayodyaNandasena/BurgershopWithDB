@@ -6,11 +6,16 @@
 package view;
 
 import controller.CustomerController;
-import model.Customer;
+import controller.OrderController;
+import model.Orders;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -129,31 +134,45 @@ public class SearchCustomer extends JFrame {
         add(btnBack);
     }
     
-    private void loadTable(String custId){
-        tblDefault.setRowCount(0);
-        boolean found=false;
-        
-        Customer [] orderArray=CustomerController.toArray();
-        
-        for(int i=0;i<orderArray.length;i++){
-            Customer obj = orderArray[i];
-            if(custId.equals(obj.getCustomerId())){
-                int stts=obj.getOrderStatus();
-                String sttsString=CustomerController.getStatusString(stts);
-                Object[] rowdata={
-                    obj.getOrderId(),
-                    obj.getOrderQTY(),
-                    obj.getOrderValue(),
-                    sttsString
-                };
-                found=true;
-                lblGetName.setText(obj.getCustomerName());
-                tblDefault.addRow(rowdata);
-            }
+    private void loadTable(String customerId){
+        String customerName = null;
+
+        try {
+            customerName = CustomerController.getName(customerId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        
-        if (!found) {
-            JOptionPane.showMessageDialog(null, "Invalid order ID");
+
+        if (customerName == null){
+            JOptionPane.showMessageDialog(null, "Invalid customer ID");
+            return;
+        }
+
+        lblGetName.setText(customerName);
+
+        tblDefault.setRowCount(0);
+        List<Orders> orderList = new ArrayList<>();
+
+        try {
+            orderList = OrderController.byCustomerId(customerId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (orderList.isEmpty()){
+            JOptionPane.showMessageDialog(null, "No orders for this customer");
+            return;
+        }
+
+        for(Orders order: orderList){
+            Object[] rowdata={
+                    order.getId(),
+                    order.getQuantity(),
+                    order.getValue(),
+                    order.getStatus().toString()
+            };
+
+            tblDefault.addRow(rowdata);
         }
     }
     

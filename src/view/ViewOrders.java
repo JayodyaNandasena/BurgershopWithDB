@@ -5,12 +5,18 @@
  */
 package view;
 
-import controller.CustomerController;
-import model.Customer;
+import controller.OrderController;
+import model.Orders;
+import model.enums.OrderStatus;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -64,7 +70,7 @@ public class ViewOrders extends JFrame {
         rdoPreparing.setBounds(30, 100, 150, 30);
         group.add(rdoPreparing);
         rdoPreparing.addActionListener(evt -> {
-            loadTable(1);
+            loadTable("PREPARING");
         });
         
         
@@ -72,21 +78,21 @@ public class ViewOrders extends JFrame {
         rdoDelivered.setBounds(200, 100, 150, 30);
         group.add(rdoDelivered);
         rdoDelivered.addActionListener(evt -> {
-            loadTable(2);
+            loadTable("DELIVERED");
         });
         
         rdoCancelled=new JRadioButton("Cancelled orders");
         rdoCancelled.setBounds(380, 100, 150, 30);
         group.add(rdoCancelled);
         rdoCancelled.addActionListener(evt -> {
-            loadTable(3);
+            loadTable("CANCELLED");
         });
         
         rdoAll=new JRadioButton("All orders");
         rdoAll.setBounds(560, 100, 150, 30);
         group.add(rdoAll);
         rdoAll.addActionListener(evt -> {
-            loadTable(-1);
+            loadTable("ALL");
         });
         
         String[] columnName={"Order ID", "Customer ID", "Name", "Quantity", "Order value", "Order Status"};
@@ -109,12 +115,12 @@ public class ViewOrders extends JFrame {
         tblCustomerDetails.getColumnModel().getColumn(4).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(5).setCellRenderer( centerRenderer );
 
-        btnHome = createStyledButton("Main Menu", 420, 400, 130, 30, 155, 82, 77, evt -> {
+        btnHome = createStyledButton("Main Menu", 420, 400, 130, evt -> {
             this.setVisible(false);
             new MainMenu().setVisible(true);
         });
         
-        btnExit = createStyledButton("Exit", 560, 400, 100, 30, 155, 82, 77, evt -> {
+        btnExit = createStyledButton("Exit", 560, 400, 100, evt -> {
             System.exit(0);
         });
         
@@ -129,47 +135,47 @@ public class ViewOrders extends JFrame {
         add(btnExit);
     }
     
-    private void loadTable(int status){
+    private void loadTable(String status){
         tblDefault.setRowCount(0);
-        
-        Customer [] orderArray=CustomerController.toArray();
-        
-        for(int i=0;i<orderArray.length;i++){
-            Customer obj = orderArray[i];
-            int stts=obj.getOrderStatus();
-            String sttsString=CustomerController.getStatusString(stts);
-            if(stts==status){
-                Object[] rowdata={
-                    obj.getOrderId(),
-                    obj.getCustomerId(),
-                    obj.getCustomerName(),
-                    obj.getOrderQTY(),
-                    obj.getOrderValue(),
-                    sttsString
-                };
-                tblDefault.addRow(rowdata);
-            }else if (status==-1){
-                Object[] rowdata={
-                    obj.getOrderId(),
-                    obj.getCustomerId(),
-                    obj.getCustomerName(),
-                    obj.getOrderQTY(),
-                    obj.getOrderValue(),
-                    sttsString
-                };
-                tblDefault.addRow(rowdata);
+        List<Orders> orders = new ArrayList<>();
+
+        if (Objects.equals(status, "ALL")){
+            try {
+                orders = OrderController.allWithCustomer();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+        }else {
+            try {
+                orders = OrderController.byStatusWithCustomer(
+                        OrderStatus.valueOf(status)
+                );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (Orders order: orders){
+            Object[] rowData={
+                    order.getId(),
+                    order.getCustomerId(),
+                    order.getCustomer().getName(),
+                    order.getQuantity(),
+                    order.getValue(),
+                    order.getStatus().toString()
+            };
+            tblDefault.addRow(rowData);
         }
     }
     
-    private JButton createStyledButton(String text,int x, int y, int width, int height,int r, int g, int b, ActionListener actionListener) {
+    private JButton createStyledButton(String text, int x, int y, int width, ActionListener actionListener) {
         JButton button = new JButton(text);
         button.setFont(new Font("", Font.PLAIN, 15));
-        button.setBounds(x, y, width, height);
+        button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
         button.setVerticalAlignment(JLabel.CENTER);
         button.setHorizontalAlignment(JLabel.CENTER);
-        button.setBackground(new Color(r, g, b));
+        button.setBackground(new Color(155, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);

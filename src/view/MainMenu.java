@@ -1,23 +1,18 @@
 package view;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Toolkit;
+import exception.LoadImageException;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 public class MainMenu extends JFrame {
 
-    private JButton btnPlaceOrder,btnSearch,btnViewOrder,btnUpdateOrder,btnExit;
-    private JLabel lblMainMenu, lblImage;
+    private final JButton btnPlaceOrder,btnSearch,btnViewOrder,btnUpdateOrder,btnExit;
+    private JLabel lblMainMenu;
 
     public MainMenu() {
         setTitle("Main Menu");
@@ -31,8 +26,9 @@ public class MainMenu extends JFrame {
         lblMainMenu.setFont(new Font("", Font.BOLD, 25));
         lblMainMenu.setBounds(0, 0, 700, 50);
         lblMainMenu.setForeground(Color.white);
-        lblMainMenu.setVerticalAlignment(JLabel.CENTER);
-        lblMainMenu.setHorizontalAlignment(JLabel.CENTER);
+        // edited Jlabel.CENTER -> SwingConstants.CENTER
+        lblMainMenu.setVerticalAlignment(SwingConstants.CENTER);
+        lblMainMenu.setHorizontalAlignment(SwingConstants.CENTER);
         lblMainMenu.setBackground(new Color(185, 82, 77));
         lblMainMenu.setOpaque(true);
         add(lblMainMenu);
@@ -48,7 +44,7 @@ public class MainMenu extends JFrame {
             JLabel imageLabel=new JLabel(imageIcon);
             imagePanel.add(imageLabel);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new LoadImageException("Failed to load image", e);
         }
         
         JPanel buttonPanel = new JPanel();
@@ -97,8 +93,9 @@ public class MainMenu extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        // edited Jlabel.CENTER -> SwingConstants.CENTER
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(185, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);

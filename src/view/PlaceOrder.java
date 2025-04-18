@@ -6,11 +6,16 @@
 package view;
 
 import controller.CustomerController;
+import controller.OrderController;
 import model.Customer;
+import model.Orders;
+import model.enums.OrderStatus;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,6 +34,7 @@ import javax.swing.event.ChangeListener;
  *
  * @author Jayodya Chathumini
  */
+
 public class PlaceOrder extends JFrame {
     private JButton btnPlaceOrder,btnCancel,btnHome,btnExit,btnAdd,btnOk;
     private JRadioButton rdoYes, rdoNo;
@@ -88,7 +94,7 @@ public class PlaceOrder extends JFrame {
         lblStatus.setBounds(30, 350, 150, 40);
         panel1.add(lblStatus);
 
-        lblOID = new JLabel(CustomerController.generateOrderId());
+        lblOID = new JLabel(OrderController.generateOrderId());
         lblOID.setFont(new Font("", Font.BOLD, 16));
         lblOID.setBounds(180, 55, 200, 30);
         panel1.add(lblOID);
@@ -155,8 +161,11 @@ public class PlaceOrder extends JFrame {
         group.add(rdoNo);
 
         rdoNo.addActionListener(evt -> {
-            
-            txtCustID.setText(CustomerController.generateCustomerId());
+            try {
+                txtCustID.setText(CustomerController.generateCustomerId());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             txtCustID.setEditable(false);
             txtCustName.setEditable(true);
             btnOk.setEnabled(true);
@@ -168,17 +177,21 @@ public class PlaceOrder extends JFrame {
         add(panel1);
 
         btnOk = createStyledButton("OK", 300, 390, 60, 30, 0, 82, 77, false, evt -> {
-            if (validateCustomer()) {
-                    txtCustID.setBackground(new Color(238, 238, 238));
-                    txtCustName.setBackground(new Color(238, 238, 238));
-                    lblStts.setText("PREPARING...");
-                    rdoYes.setEnabled(false);
-                    rdoNo.setEnabled(false);
-                    txtCustID.setEditable(false);
-                    txtCustName.setEditable(false);
-                    spnQty.setEnabled(false);
-                    btnOk.setEnabled(false);
-                    btnPlaceOrder.setEnabled(true);
+            try {
+                if (validateCustomer()) {
+                        txtCustID.setBackground(new Color(238, 238, 238));
+                        txtCustName.setBackground(new Color(238, 238, 238));
+                        lblStts.setText("PREPARING...");
+                        rdoYes.setEnabled(false);
+                        rdoNo.setEnabled(false);
+                        txtCustID.setEditable(false);
+                        txtCustName.setEditable(false);
+                        spnQty.setEnabled(false);
+                        btnOk.setEnabled(false);
+                        btnPlaceOrder.setEnabled(true);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         });
         panel1.add(btnOk);
@@ -189,16 +202,23 @@ public class PlaceOrder extends JFrame {
         panel2.setLayout(null);
 
         btnPlaceOrder = createStyledButton("Place order", 65, 70, 170, 40, 0, 82, 77, false, evt -> {
-            JOptionPane.showMessageDialog(null, "Order added successfully!");
-            Customer orderObj = new Customer(
+            Orders orderObj = new Orders(
                     lblOID.getText(),
                     txtCustID.getText(),
-                    txtCustName.getText(),
-                    1,
+                    OrderStatus.PREPARING,
                     (Integer)spnQty.getValue(),
                     Double.parseDouble(lblTot.getText()) 
             );
-            CustomerController.add(orderObj);
+            try {
+                boolean added = OrderController.add(orderObj);
+
+                if (added){
+                    JOptionPane.showMessageDialog(null, "Order added successfully!");
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(null, "Error adding order");
+                throw new RuntimeException(e);
+            }
             reset(true);
         });
         panel2.add(btnPlaceOrder);
@@ -212,18 +232,17 @@ public class PlaceOrder extends JFrame {
         btnCancel = createStyledButton("Cancel Order", 65, 130, 170, 40, 185, 82, 77, false, evt -> {
             int option = JOptionPane.showOptionDialog(
                     null,
-                    "Re you sure you want to cancel order?",
+                    "Are you sure you want to cancel order?",
                     "Confirm cancel",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
                     new String[] { "No, back to order", "Yes, cancel my order" },
                     "No, back to order");
-            if (option == JOptionPane.NO_OPTION) {
+
+            if (option == 1) {
                 JOptionPane.showMessageDialog(null, "Order cancelled!");
                 reset(false);
-            } else if (option == JOptionPane.YES_OPTION) {
-
             }
         });
         panel2.add(btnCancel);
@@ -279,7 +298,7 @@ public class PlaceOrder extends JFrame {
         btnHome.setEnabled(true);
 
         if (nextID) {
-            lblOID.setText(CustomerController.generateOrderId());
+            lblOID.setText(OrderController.generateOrderId());
         }
 
     }
@@ -288,11 +307,11 @@ public class PlaceOrder extends JFrame {
         SpinnerNumberModel modelNew=new SpinnerNumberModel(value,min, null, 1);
         spnQty.setModel(modelNew);
         ((JSpinner.DefaultEditor) spnQty.getEditor()).getTextField().setEditable(false);
-        lblTot.setText(Double.toString(CustomerController.generateValue(
+        lblTot.setText(Double.toString(OrderController.generateValue(
                 (Integer)spnQty.getValue())));
         spnQty.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                lblTot.setText(Double.toString(CustomerController.generateValue(
+                lblTot.setText(Double.toString(OrderController.generateValue(
                         (Integer)spnQty.getValue())));
             }
           }
@@ -300,14 +319,15 @@ public class PlaceOrder extends JFrame {
         spnQty.setEnabled(isEnabled);
     }
 
-    public boolean validateCustomer() {
+    public boolean validateCustomer() throws SQLException {
         boolean validCustId = false;
         if (rdoYes.isSelected()) {
             String id = txtCustID.getText();
+
             if (!id.isEmpty()) {
-                String custName = CustomerController.getCustomerName(id);
-                if (custName != null) {
-                    txtCustName.setText(custName);
+                String customerName = CustomerController.search(id);
+                if (customerName != null) {
+                    txtCustName.setText(customerName);
                     validCustId = true;
                 } else {
                     int option = JOptionPane.showOptionDialog(
@@ -319,6 +339,7 @@ public class PlaceOrder extends JFrame {
                             null,
                             new String[] { "Try Again", "Generate new ID" },
                             "Try Again");
+
                     if (option == JOptionPane.YES_OPTION) {
                         txtCustID.setBackground(new Color(250, 205, 212));
                     } else {
@@ -338,13 +359,21 @@ public class PlaceOrder extends JFrame {
             String name = txtCustName.getText();
             if (!name.isEmpty()) {
                 if (CustomerController.validateCustomerName(name)) {
-                    validCustId = true;
+                    boolean added = CustomerController.add(
+                            new Customer(
+                                    txtCustID.getText(),
+                                    name
+                            )
+                    );
+                    if (added) {
+                        validCustId = true;
+                    }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Please enter a valid customer name (ex: Kamal)");
+                    JOptionPane.showMessageDialog(null, "Please enter a valid customer name (eg: Kamal)");
                     txtCustName.setBackground(new Color(250, 205, 212));
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Please enter a customer name (ex: Kamal)");
+                JOptionPane.showMessageDialog(null, "Please enter a customer name (eg: Kamal)");
                 txtCustName.setBackground(new Color(250, 205, 212));
             }
         }

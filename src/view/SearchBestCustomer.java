@@ -6,16 +6,15 @@
 package view;
 
 import controller.CustomerController;
-import model.Customer;
+import model.CustomerInOrder;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -30,7 +29,7 @@ public class SearchBestCustomer extends JFrame {
     private JTable tblCustomerDetails;
     private DefaultTableModel tblDefault;
     
-    public SearchBestCustomer(){
+    public SearchBestCustomer() {
         setTitle("Search Best Customer");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(700,500);
@@ -60,23 +59,27 @@ public class SearchBestCustomer extends JFrame {
         tablePane.setOpaque(true);
         
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER );
         tblCustomerDetails.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
 
         tblDefault.setRowCount(0);
-        
-        Customer [] orderArray=CustomerController.sortCustomers();
-        
-        for(int i=0;i<orderArray.length;i++){
-            Customer obj = orderArray[i];
-            Object[] rowdata={
-                obj.getCustomerId(),
-                obj.getCustomerName(),
-                obj.getOrderValue()
+
+        List<CustomerInOrder> customers = null;
+        try {
+            customers = CustomerController.bestCustomer();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        for(CustomerInOrder customer : customers){
+            Object[] rowData={
+                    customer.getCustomerId(),
+                    customer.getCustomerName(),
+                    customer.getTotalOrderValue()
             };
-            tblDefault.addRow(rowdata);
+            tblDefault.addRow(rowData);
         }
         
         btnHome = createStyledButton("Main Menu", 300, 400, 130, 30, 155, 82, 77, evt -> {

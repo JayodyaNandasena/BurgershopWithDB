@@ -5,13 +5,19 @@
  */
 package view;
 
-import controller.CustomerController;
+import controller.OrderController;
+import exception.QueryFailException;
 import model.Customer;
+import model.Orders;
+import model.enums.OrderStatus;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.Objects;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -71,39 +77,50 @@ public class Update extends JFrame {
         panel1.setLayout(null);
         panel1.setVisible(false);
         
-        btnSearch = createStyledButton("Search", 555, 60, 100, 30, 0, 82, 77, evt -> {
+        btnSearch = createStyledButton("Search", 555, 60, 100, 0, evt -> {
             String orderId=txtOrderID.getText();
             if(orderId.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Please enter an order ID");
                 txtOrderID.setBackground(new Color(250, 205, 212));
             }else{
-                if(CustomerController.isExistOrder(orderId)){
-                    txtOrderID.setBackground(new Color(238, 238, 238));
-                    panel1.setVisible(true);
-                    int status=loadData(orderId);
-                    if(status==2){
-                        lblMessage.setText("<html>* This order is already delivered,<br>&nbsp You cannot update this order</html>");
-                        btnUQty.setEnabled(false);
-                        btnUStatus.setEnabled(false);
-                        btnOk.setVisible(true);
-                    }else if(status==3){
-                        lblMessage.setText("<html>* This order is already cancelled,<br>&nbsp You cannot update this order</html>");
-                        btnUQty.setEnabled(false);
-                        btnUStatus.setEnabled(false);
-                        btnOk.setVisible(true);
+                try {
+                    Orders order = OrderController.byIdWithCustomer(orderId);
+
+                    if(order != null){
+                        txtOrderID.setBackground(new Color(238, 238, 238));
+                        panel1.setVisible(true);
+
+                        loadData(order);
+
+                        switch (order.getStatus()) {
+                            case OrderStatus.DELIVERED -> {
+                                lblMessage.setText("<html>* This order is already delivered,<br>&nbsp You cannot update this order</html>");
+                                btnUQty.setEnabled(false);
+                                btnUStatus.setEnabled(false);
+                                btnOk.setVisible(true);
+                            }
+                            case OrderStatus.CANCELLED -> {
+                                lblMessage.setText("<html>* This order is already cancelled,<br>&nbsp You cannot update this order</html>");
+                                btnUQty.setEnabled(false);
+                                btnUStatus.setEnabled(false);
+                                btnOk.setVisible(true);
+                            }
+                            default -> {
+                                btnUQty.setEnabled(true);
+                                btnUStatus.setEnabled(true);
+                            }
+                        }
                     }else{
-                        btnUQty.setEnabled(true);
-                        btnUStatus.setEnabled(true);
+                        JOptionPane.showMessageDialog(null, "Invalid order ID");
+                        txtOrderID.setBackground(new Color(250, 205, 212));
                     }
-                }else{
-                    JOptionPane.showMessageDialog(null, "Invalid order ID");
-                    txtOrderID.setBackground(new Color(250, 205, 212));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
                 }
-                
             }
         });
         
-        btnUQty = createStyledButton("Update Order Quantity", 50, 0, 280, 30, 0, 82, 77, evt -> {
+        btnUQty = createStyledButton("Update Order Quantity", 50, 0, 280, 0, evt -> {
             btnUpdate.setEnabled(true);
             spnQty.setEnabled(true);
             cmbStatus.setEnabled(false);
@@ -111,7 +128,7 @@ public class Update extends JFrame {
         btnUQty.setEnabled(false);
         panel1.add(btnUQty);
         
-        btnUStatus = createStyledButton("Update Order Status", 370, 0, 280, 30, 0, 82, 77, evt -> {
+        btnUStatus = createStyledButton("Update Order Status", 370, 0, 280, 0, evt -> {
             btnUpdate.setEnabled(true);
             cmbStatus.setEnabled(true);
             spnQty.setEnabled(false);
@@ -158,7 +175,7 @@ public class Update extends JFrame {
         spnQty.setEnabled(false);
         spnQty.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-                txtValue.setText(Double.toString(CustomerController.generateValue((Integer)spnQty.getValue())));
+                txtValue.setText(Double.toString(OrderController.generateValue((Integer)spnQty.getValue())));
             }
           }
         );
@@ -193,7 +210,7 @@ public class Update extends JFrame {
         lblMessage.setVerticalAlignment(JLabel.CENTER);
         lblMessage.setHorizontalAlignment(JLabel.LEFT);
         
-        btnOk = createStyledButton("Ok", 580, 220, 70, 30, 0, 82, 77, evt -> {
+        btnOk = createStyledButton("Ok", 580, 220, 70, 0, evt -> {
             reset();
         });
         btnOk.setVisible(false);
@@ -210,17 +227,19 @@ public class Update extends JFrame {
         });
         cmbStatus.setEnabled(false);
         
-        btnUpdate = createStyledButton("Save Changes", 50, 400, 150, 30, 155, 82, 77, evt -> {
-            String newStatus=cmbStatus.getSelectedItem().toString();
-            int status;
-            if(newStatus.equals("PREPARING")){
-                status=1;
-            }else if(newStatus.equals("DELIVERED")){
-                status=2;
-            }else{
-                status=3;
+        btnUpdate = createStyledButton("Save Changes", 50, 400, 150, 155, evt -> {
+            OrderStatus status = OrderStatus.valueOf(Objects.requireNonNull(cmbStatus.getSelectedItem()).toString());
+
+            try {
+                OrderController.update(
+                        txtOrderID.getText(),
+                        status,
+                        (Integer)spnQty.getValue(),
+                        Double.parseDouble(txtValue.getText())
+                );
+            } catch (SQLException e) {
+                throw new QueryFailException("Order update failed",e);
             }
-            updateData(txtOrderID.getText(), (Integer)spnQty.getValue(), Double.parseDouble(txtValue.getText()), status);
             JOptionPane.showMessageDialog(null, "Order updated successfully!");
             cmbStatus.setEnabled(false);
             spnQty.setEnabled(false);
@@ -229,7 +248,7 @@ public class Update extends JFrame {
         });
         btnUpdate.setEnabled(false);
         
-        btnHome = createStyledButton("Main Menu", 420, 400, 130, 30, 155, 82, 77, evt -> {
+        btnHome = createStyledButton("Main Menu", 420, 400, 130, 155, evt -> {
             if(btnUpdate.isEnabled()){
                 int option = JOptionPane.showOptionDialog(
                         null,
@@ -252,7 +271,7 @@ public class Update extends JFrame {
             
         });
         
-        btnExit = createStyledButton("Exit", 560, 400, 100, 30, 155, 82, 77, evt -> {
+        btnExit = createStyledButton("Exit", 560, 400, 100, 155, evt -> {
             System.exit(0);
         });
         
@@ -282,26 +301,17 @@ public class Update extends JFrame {
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/updateOrder.png")));
     }
     
-    private int loadData(String orderId){
-        Customer customer=CustomerController.getOrderDetails(orderId);
-        txtCustId.setText(customer.getCustomerId());
-        txtCustName.setText(customer.getCustomerName());
-        spnQty.setValue(customer.getOrderQTY());
-        txtValue.setText(Double.toString(customer.getOrderValue()));
-        int status=customer.getOrderStatus();
-        switch(status){
-            case 1:cmbStatus.setSelectedItem("PREPARING");break;
-            case 2:cmbStatus.setSelectedItem("DELIVERED");break;
-            case 3:cmbStatus.setSelectedItem("CANCELLED");break;
+    private void loadData(Orders order){
+        txtCustId.setText(order.getCustomerId());
+        txtCustName.setText(order.getCustomer().getName());
+        spnQty.setValue(order.getQuantity());
+        txtValue.setText(Double.toString(order.getValue()));
+
+        switch(order.getStatus()){
+            case OrderStatus.PREPARING:cmbStatus.setSelectedItem("PREPARING");break;
+            case OrderStatus.DELIVERED:cmbStatus.setSelectedItem("DELIVERED");break;
+            case OrderStatus.CANCELLED:cmbStatus.setSelectedItem("CANCELLED");break;
         }
-        return status;
-    }
-    
-    private void updateData(String orderId, int qty, double value, int status){
-        Customer customer=CustomerController.getOrderDetails(orderId);
-        customer.setOrderQTY(qty);
-        customer.setOrderValue(value);
-        customer.setOrderStatus(status);
     }
     
     public void reset() {
@@ -309,14 +319,14 @@ public class Update extends JFrame {
         panel1.setVisible(false);
     }
     
-    private JButton createStyledButton(String text,int x, int y, int width, int height,int r, int g, int b, ActionListener actionListener) {
+    private JButton createStyledButton(String text, int x, int y, int width, int r, ActionListener actionListener) {
         JButton button = new JButton(text);
         button.setFont(new Font("", Font.PLAIN, 15));
-        button.setBounds(x, y, width, height);
+        button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
         button.setVerticalAlignment(JLabel.CENTER);
         button.setHorizontalAlignment(JLabel.CENTER);
-        button.setBackground(new Color(r, g, b));
+        button.setBackground(new Color(r, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);

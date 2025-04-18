@@ -58,7 +58,6 @@ public class Search extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBounds(350, 50, 350, 450);

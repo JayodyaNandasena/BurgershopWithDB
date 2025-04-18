@@ -5,12 +5,14 @@
  */
 package view;
 
-import controller.CustomerController;
-import model.Customer;
+import controller.OrderController;
+import model.Orders;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -58,7 +60,7 @@ public class SearchOrder extends JFrame {
         //txtCustID.setBounds(WIDTH, WIDTH, WIDTH, HEIGHT);
         txtOrderID.setBounds(300, 60, 215, 30);
         
-        btnSearch = createStyledButton("Search", 555, 60, 100, 30, 0, 82, 77, evt -> {
+        btnSearch = createStyledButton("Search", 555, 60, 100, 0, evt -> {
             String orderId=txtOrderID.getText();
             if(orderId.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Please enter an order ID");
@@ -122,17 +124,17 @@ public class SearchOrder extends JFrame {
         lblGetStatus.setHorizontalAlignment(JLabel.LEFT);
         
         
-        btnHome = createStyledButton("Main Menu", 310, 400, 130, 30, 155, 82, 77, evt -> {
+        btnHome = createStyledButton("Main Menu", 310, 400, 130, 155, evt -> {
             this.setVisible(false);
             new MainMenu().setVisible(true);
         });
         
-        btnBack = createStyledButton("Back", 450, 400, 100, 30, 155, 82, 77, evt -> {
+        btnBack = createStyledButton("Back", 450, 400, 100, 155, evt -> {
             this.setVisible(false);
             new Search().setVisible(true);
         });
         
-        btnExit = createStyledButton("Exit", 560, 400, 100, 30, 155, 82, 77, evt -> {
+        btnExit = createStyledButton("Exit", 560, 400, 100, 155, evt -> {
             System.exit(0);
         });
         
@@ -159,26 +161,25 @@ public class SearchOrder extends JFrame {
     
     private void loadData(String orderId){
         clear();
-        
-        boolean found=false;
-        
-        Customer [] orderArray=CustomerController.toArray();
-        
-        for(int i=0;i<orderArray.length;i++){
-            Customer obj = orderArray[i];
-            if(orderId.equals(obj.getOrderId())){
-                lblGetName.setText(obj.getCustomerName());
-                lblGetQty.setText(Integer.toString(obj.getOrderQTY()));
-                lblGetValue.setText("Rs. "+ Double.toString(obj.getOrderValue()));
-                lblGetStatus.setText(CustomerController.getStatusString(obj.getOrderStatus()));
-                found=true;
-            }
+
+        Orders order = new Orders();
+
+        try {
+            order = OrderController.byIdWithCustomer(orderId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        
-        if (!found) {
+
+        if (order == null){
             JOptionPane.showMessageDialog(null, "Invalid order ID");
             txtOrderID.setBackground(new Color(250, 205, 212));
+            return;
         }
+
+        lblGetName.setText(order.getCustomer().getName());
+        lblGetQty.setText(Integer.toString(order.getQuantity()));
+        lblGetValue.setText(STR."Rs. \{order.getValue()}");
+        lblGetStatus.setText(order.getStatus().toString());
     }
     
     private void clear(){
@@ -188,14 +189,14 @@ public class SearchOrder extends JFrame {
         lblGetStatus.setText("");
     }
     
-    private JButton createStyledButton(String text,int x, int y, int width, int height,int r, int g, int b, ActionListener actionListener) {
+    private JButton createStyledButton(String text, int x, int y, int width, int r, ActionListener actionListener) {
         JButton button = new JButton(text);
         button.setFont(new Font("", Font.PLAIN, 15));
-        button.setBounds(x, y, width, height);
+        button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
         button.setVerticalAlignment(JLabel.CENTER);
         button.setHorizontalAlignment(JLabel.CENTER);
-        button.setBackground(new Color(r, g, b));
+        button.setBackground(new Color(r, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);
