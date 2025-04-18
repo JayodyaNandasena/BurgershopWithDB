@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Burgershop">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dist/Burgershop.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
