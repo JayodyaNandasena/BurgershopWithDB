@@ -1,7 +1,7 @@
 package exception;
 
-public class DatabaseConnectionException extends RuntimeException {
-    public DatabaseConnectionException(String message, Throwable cause) {
+public class LoadImageException extends RuntimeException {
+    public LoadImageException(String message, Throwable cause) {
         super(message, cause);
     }
 }

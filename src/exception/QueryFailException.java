@@ -1,7 +1,7 @@
 package exception;
 
-public class LoadImageException extends RuntimeException {
-    public LoadImageException(String message, Throwable cause) {
+public class QueryFailException extends RuntimeException {
+    public QueryFailException(String message, Throwable cause) {
         super(message, cause);
     }
 }
