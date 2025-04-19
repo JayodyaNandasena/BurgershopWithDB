@@ -105,7 +105,7 @@ public class CustomerController {
                     CustomerInOrder customer = new CustomerInOrder(
                             result.getString("customerId"),
                             result.getString("customerName"),
-                            result.getDouble("customersList")
+                            result.getDouble("totalOrderValue")
                     );
                     customersList.add(customer);
                 }
