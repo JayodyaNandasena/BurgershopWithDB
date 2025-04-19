@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerController {
+    private CustomerController() {
+    }
 
     // generate customer Id
     public static String generateCustomerId() throws SQLException {
@@ -47,26 +49,13 @@ public class CustomerController {
         }
     }
 
-//    public boolean add(Customer customer) throws SQLException {
-//        if (dbConnection != null) {
-//            String sql = "INSERT INTO customer (id, name) VALUES (?, ?)";
-//            try (PreparedStatement stmt = dbConnection.prepareStatement(sql)) {
-//                stmt.setString(1, customer.getId());
-//                stmt.setString(2, customer.getName());
-//                stmt.executeUpdate();
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-    // get all customers
-
     // Search customer by ID
     public static String search(String id) throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement("SELECT name FROM customer WHERE id = ?")
+                PreparedStatement stmt = dbConnection.prepareStatement(
+                        "SELECT name FROM customer WHERE id = ?"
+                )
         ) {
             stmt.setString(1, id);
 
@@ -115,10 +104,13 @@ public class CustomerController {
         }
     }
 
+    // get last customer id
     private static String getLastId() throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement("SELECT id FROM customer ORDER BY id DESC LIMIT 1")
+                PreparedStatement stmt = dbConnection.prepareStatement(
+                        "SELECT id FROM customer ORDER BY id DESC LIMIT 1"
+                )
         ) {
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
@@ -129,10 +121,13 @@ public class CustomerController {
         }
     }
 
+    // get customer name by id
     public static String getName(String id) throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement("SELECT name FROM customer WHERE id = ?")
+                PreparedStatement stmt = dbConnection.prepareStatement(
+                        "SELECT name FROM customer WHERE id = ?"
+                )
         ) {
             stmt.setString(1, id);
 

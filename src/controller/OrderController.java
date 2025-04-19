@@ -13,10 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderController {
-    private static String lastId = null;
+    private OrderController() {
+    }
 
     // generate order Id
-    public static String generateOrderId() {
+    public static String generateOrderId() throws SQLException {
+        String lastId = getLastId();
+
         if (lastId == null) {
             lastId = "B0001";
         } else {
@@ -52,7 +55,7 @@ public class OrderController {
     }
 
     // update order
-    public static boolean update(String orderId, OrderStatus status, int quantity, double value) throws SQLException {
+    public static void update(String orderId, OrderStatus status, int quantity, double value) throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
                 PreparedStatement stmt = dbConnection.prepareStatement(
@@ -63,54 +66,11 @@ public class OrderController {
             stmt.setDouble(3, value);
             stmt.setString(4, orderId);
             stmt.executeUpdate();
-            return true;
-        }
-    }
-
-    // check order availability by order id
-    public static boolean checkAvailability(String orderId) throws SQLException {
-        try (
-                Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement(
-                        "SELECT EXISTS (SELECT 1 FROM orders WHERE id = ?) AS isAvailable")
-        ) {
-            stmt.setString(1, orderId);
-
-            try (ResultSet result = stmt.executeQuery()) {
-                if (result.next()) {
-                    return result.getBoolean("isAvailable");
-                }
-                return false;
-            }
-        }
-    }
-
-    // search order by id
-    public static Orders byId(String orderId) throws SQLException {
-        try (
-                Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement(
-                        "SELECT id, status, quantity, value, customerId FROM orders WHERE id = ?")
-        ) {
-            stmt.setString(1, orderId);
-
-            try (ResultSet result = stmt.executeQuery()) {
-                if (result.next()) {
-                    return new Orders(
-                            result.getString("id"),
-                            result.getString("customerId"),
-                            OrderStatus.valueOf(result.getString("status")),
-                            result.getInt("quantity"),
-                            result.getDouble("value")
-                    );
-                }
-                return null;
-            }
         }
     }
 
     // search order by id, join customer
-    public static Orders byIdWithCustomer(String orderId) throws SQLException {
+    public static Orders byId(String orderId) throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
                 PreparedStatement stmt = dbConnection.prepareStatement(
@@ -171,41 +131,14 @@ public class OrderController {
         }
     }
 
-    // get all order details
-    public static List<Orders> getAll() throws SQLException {
-        try (
-                Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement(
-                        "SELECT id, status, quantity, value, customerId FROM orders")
-        ) {
-            try (ResultSet result = stmt.executeQuery()) {
-                List<Orders> ordersList = new ArrayList<>();
-
-                while (result.next()) {
-                    Orders order = new Orders(
-                            result.getString("id"),
-                            result.getString("customerId"),
-                            OrderStatus.valueOf(result.getString("status")),
-                            result.getInt("quantity"),
-                            result.getDouble("value")
-                    );
-                    ordersList.add(order);
-                }
-
-                return ordersList;
-            }
-        }
-    }
-
     // get all with customer
-    public static List<Orders> allWithCustomer() throws SQLException {
+    public static List<Orders> all() throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
                 PreparedStatement stmt = dbConnection.prepareStatement(
                         "SELECT o.id, o.status, o.quantity, o.value, o.customerId, c.name " +
                                 "FROM orders o JOIN customer c ON o.customerId = c.id ")
         ) {
-
             try (ResultSet result = stmt.executeQuery()) {
                 List<Orders> ordersList = new ArrayList<>();
 
@@ -221,34 +154,6 @@ public class OrderController {
                             result.getInt("quantity"),
                             result.getDouble("value"),
                             customer
-                    );
-                    ordersList.add(order);
-                }
-
-                return ordersList;
-            }
-        }
-    }
-
-    // get order details by status
-    public static List<Orders> byStatus(OrderStatus status) throws SQLException {
-        try (
-                Connection dbConnection = DBConnection.getConnection();
-                PreparedStatement stmt = dbConnection.prepareStatement(
-                        "SELECT id, status, quantity, value, customerId FROM orders WHERE status = ?")
-        ) {
-            stmt.setString(1, status.toString());
-
-            try (ResultSet result = stmt.executeQuery()) {
-                List<Orders> ordersList = new ArrayList<>();
-
-                while (result.next()) {
-                    Orders order = new Orders(
-                            result.getString("id"),
-                            result.getString("customerId"),
-                            status,
-                            result.getInt("quantity"),
-                            result.getDouble("value")
                     );
                     ordersList.add(order);
                 }
@@ -288,6 +193,23 @@ public class OrderController {
                 }
 
                 return ordersList;
+            }
+        }
+    }
+
+    // get last order id
+    private static String getLastId() throws SQLException {
+        try (
+                Connection dbConnection = DBConnection.getConnection();
+                PreparedStatement stmt = dbConnection.prepareStatement(
+                        "SELECT id FROM orders ORDER BY id DESC LIMIT 1"
+                )
+        ) {
+            try (ResultSet result = stmt.executeQuery()) {
+                if (result.next()) {
+                    return result.getString("id");
+                }
+                return null;
             }
         }
     }
