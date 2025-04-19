@@ -7,30 +7,17 @@ package view;
 
 import controller.OrderController;
 import exception.QueryFailException;
-import model.Customer;
 import model.Orders;
 import model.enums.OrderStatus;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
+import javax.swing.*;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Objects;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JSpinner.DefaultEditor;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -56,8 +43,8 @@ public class Update extends JFrame {
         lblTitle.setFont(new Font("", Font.BOLD, 25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185, 82, 77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -65,8 +52,8 @@ public class Update extends JFrame {
         lblOrderId = new JLabel("Please enter the order ID : ");
         lblOrderId.setFont(new Font("", Font.BOLD, 17));
         lblOrderId.setBounds(30, 60, 270, 30);
-        lblOrderId.setVerticalAlignment(JLabel.CENTER);
-        lblOrderId.setHorizontalAlignment(JLabel.LEFT);
+        lblOrderId.setVerticalAlignment(SwingConstants.CENTER);
+        lblOrderId.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtOrderID = new JTextField();
         txtOrderID.setFont(new Font("", Font.PLAIN, 16));
@@ -84,7 +71,7 @@ public class Update extends JFrame {
                 txtOrderID.setBackground(new Color(250, 205, 212));
             }else{
                 try {
-                    Orders order = OrderController.byIdWithCustomer(orderId);
+                    Orders order = OrderController.byId(orderId);
 
                     if(order != null){
                         txtOrderID.setBackground(new Color(238, 238, 238));
@@ -115,7 +102,7 @@ public class Update extends JFrame {
                         txtOrderID.setBackground(new Color(250, 205, 212));
                     }
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    throw new QueryFailException("Failed to retrieve order by ID",e);
                 }
             }
         });
@@ -139,34 +126,32 @@ public class Update extends JFrame {
         lblCustId = new JLabel("Customer ID : ");
         lblCustId.setFont(new Font("", Font.BOLD, 16));
         lblCustId.setBounds(50, 60, 150, 30);
-        lblCustId.setVerticalAlignment(JLabel.CENTER);
-        lblCustId.setHorizontalAlignment(JLabel.LEFT);
+        lblCustId.setVerticalAlignment(SwingConstants.CENTER);
+        lblCustId.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtCustId = new JTextField("");
         txtCustId.setFont(new Font("", Font.PLAIN, 16));
         txtCustId.setBounds(200, 60, 100, 30);
-        //txtCustId.setVerticalAlignment(JLabel.CENTER);
-        txtCustId.setHorizontalAlignment(JLabel.LEFT);
+        txtCustId.setHorizontalAlignment(SwingConstants.LEFT);
         txtCustId.setEditable(false);
         
         lblCustName = new JLabel("Customer Name : ");
         lblCustName.setFont(new Font("", Font.BOLD, 16));
         lblCustName.setBounds(50, 100, 150, 30);
-        lblCustName.setVerticalAlignment(JLabel.CENTER);
-        lblCustName.setHorizontalAlignment(JLabel.LEFT);
+        lblCustName.setVerticalAlignment(SwingConstants.CENTER);
+        lblCustName.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtCustName = new JTextField("");
         txtCustName.setFont(new Font("", Font.PLAIN, 16));
         txtCustName.setBounds(200, 100, 100, 30);
-        //txtCustName.setVerticalAlignment(JLabel.CENTER);
-        txtCustName.setHorizontalAlignment(JLabel.LEFT);
+        txtCustName.setHorizontalAlignment(SwingConstants.LEFT);
         txtCustName.setEditable(false);
         
         lblQty = new JLabel("Order Quantity : ");
         lblQty.setFont(new Font("", Font.BOLD, 16));
         lblQty.setBounds(50, 140, 150, 30);
-        lblQty.setVerticalAlignment(JLabel.CENTER);
-        lblQty.setHorizontalAlignment(JLabel.LEFT);
+        lblQty.setVerticalAlignment(SwingConstants.CENTER);
+        lblQty.setHorizontalAlignment(SwingConstants.LEFT);
         
         SpinnerNumberModel model=new SpinnerNumberModel(1, 1, null, 1);
         spnQty= new JSpinner(model);
@@ -183,32 +168,32 @@ public class Update extends JFrame {
         lblOrdervalue = new JLabel("Order value :   Rs. ");
         lblOrdervalue.setFont(new Font("", Font.BOLD, 16));
         lblOrdervalue.setBounds(50, 180, 150, 30);
-        lblOrdervalue.setVerticalAlignment(JLabel.CENTER);
-        lblOrdervalue.setHorizontalAlignment(JLabel.LEFT);
+        lblOrdervalue.setVerticalAlignment(SwingConstants.CENTER);
+        lblOrdervalue.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtValue = new JTextField("");
         txtValue.setFont(new Font("", Font.PLAIN, 16));
         txtValue.setBounds(200, 180, 150, 30);
-        txtValue.setHorizontalAlignment(JLabel.LEFT);
+        txtValue.setHorizontalAlignment(SwingConstants.LEFT);
         txtValue.setEditable(false);
         
         lblStatus = new JLabel("Order Status : ");
         lblStatus.setFont(new Font("", Font.BOLD, 16));
         lblStatus.setBounds(50, 220, 150, 30);
-        lblStatus.setVerticalAlignment(JLabel.CENTER);
-        lblStatus.setHorizontalAlignment(JLabel.LEFT);
+        lblStatus.setVerticalAlignment(SwingConstants.CENTER);
+        lblStatus.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtStatus = new JTextField("");
         txtStatus.setFont(new Font("", Font.PLAIN, 16));
         txtStatus.setBounds(200, 220, 100, 30);
-        txtStatus.setHorizontalAlignment(JLabel.LEFT);
+        txtStatus.setHorizontalAlignment(SwingConstants.LEFT);
         
         lblMessage = new JLabel("");
         lblMessage.setFont(new Font("", Font.PLAIN, 12));
         lblMessage.setForeground(Color.red);
         lblMessage.setBounds(380, 220, 300, 30);
-        lblMessage.setVerticalAlignment(JLabel.CENTER);
-        lblMessage.setHorizontalAlignment(JLabel.LEFT);
+        lblMessage.setVerticalAlignment(SwingConstants.CENTER);
+        lblMessage.setHorizontalAlignment(SwingConstants.LEFT);
         
         btnOk = createStyledButton("Ok", 580, 220, 70, 0, evt -> {
             reset();
@@ -216,15 +201,11 @@ public class Update extends JFrame {
         btnOk.setVisible(false);
         
         
-        cmbStatus=new JComboBox();
-        cmbStatus.setModel(new DefaultComboBoxModel<> (new String[]{"PREPARING","DELIVERED","CANCELLED"}));
+        cmbStatus = new JComboBox();
+        cmbStatus.setModel(new DefaultComboBoxModel<> (
+                new String[]{"PREPARING","DELIVERED","CANCELLED"})
+        );
         cmbStatus.setBounds(200, 220, 150, 30);
-        cmbStatus.addActionListener (new ActionListener () {
-            public void actionPerformed(ActionEvent e) {
-                String newStatus=cmbStatus.getSelectedItem().toString();
-                
-            }
-        });
         cmbStatus.setEnabled(false);
         
         btnUpdate = createStyledButton("Save Changes", 50, 400, 150, 155, evt -> {
@@ -238,7 +219,7 @@ public class Update extends JFrame {
                         Double.parseDouble(txtValue.getText())
                 );
             } catch (SQLException e) {
-                throw new QueryFailException("Order update failed",e);
+                throw new QueryFailException("Error updating order",e);
             }
             JOptionPane.showMessageDialog(null, "Order updated successfully!");
             cmbStatus.setEnabled(false);
@@ -267,8 +248,6 @@ public class Update extends JFrame {
                 this.setVisible(false);
                 new MainMenu().setVisible(true);
             }
-            
-            
         });
         
         btnExit = createStyledButton("Exit", 560, 400, 100, 155, evt -> {
@@ -295,9 +274,7 @@ public class Update extends JFrame {
         add(btnHome);
         add(btnExit);
         add(btnUpdate);
-        
-        
-        
+
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("../images/updateOrder.png")));
     }
     
@@ -324,13 +301,12 @@ public class Update extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(r, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);
         return button;
     }
-
 }

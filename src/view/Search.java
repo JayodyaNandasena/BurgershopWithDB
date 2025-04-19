@@ -5,19 +5,14 @@
  */
 package view;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Toolkit;
+import exception.LoadImageException;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  *
@@ -39,8 +34,8 @@ public class Search extends JFrame {
         lblTitle.setFont(new Font("", Font.BOLD, 25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185, 82, 77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -56,7 +51,7 @@ public class Search extends JFrame {
             JLabel imageLabel=new JLabel(imageIcon);
             imagePanel.add(imageLabel);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new LoadImageException("Failed to load shop image",e);
         }
 
         JPanel buttonPanel = new JPanel();
@@ -106,8 +101,8 @@ public class Search extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(r, g, b));
         button.setOpaque(true);
         button.setFocusable(false);

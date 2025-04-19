@@ -26,7 +26,6 @@ public class MainMenu extends JFrame {
         lblMainMenu.setFont(new Font("", Font.BOLD, 25));
         lblMainMenu.setBounds(0, 0, 700, 50);
         lblMainMenu.setForeground(Color.white);
-        // edited Jlabel.CENTER -> SwingConstants.CENTER
         lblMainMenu.setVerticalAlignment(SwingConstants.CENTER);
         lblMainMenu.setHorizontalAlignment(SwingConstants.CENTER);
         lblMainMenu.setBackground(new Color(185, 82, 77));
@@ -93,7 +92,6 @@ public class MainMenu extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
-        // edited Jlabel.CENTER -> SwingConstants.CENTER
         button.setVerticalAlignment(SwingConstants.CENTER);
         button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(185, 82, 77));

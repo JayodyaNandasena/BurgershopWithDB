@@ -7,6 +7,7 @@ package view;
 
 import controller.CustomerController;
 import controller.OrderController;
+import exception.QueryFailException;
 import model.Customer;
 import model.Orders;
 import model.enums.OrderStatus;
@@ -16,19 +17,7 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.*;
 
 /**
  *
@@ -57,8 +46,8 @@ public class PlaceOrder extends JFrame {
         lblTitle.setFont(new Font("", Font.BOLD, 25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185, 82, 77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -94,7 +83,11 @@ public class PlaceOrder extends JFrame {
         lblStatus.setBounds(30, 350, 150, 40);
         panel1.add(lblStatus);
 
-        lblOID = new JLabel(OrderController.generateOrderId());
+        try {
+            lblOID = new JLabel(OrderController.generateOrderId());
+        } catch (SQLException e) {
+            throw new QueryFailException("Failed to generate new order ID",e);
+        }
         lblOID.setFont(new Font("", Font.BOLD, 16));
         lblOID.setBounds(180, 55, 200, 30);
         panel1.add(lblOID);
@@ -132,8 +125,8 @@ public class PlaceOrder extends JFrame {
         rdoYes = new JRadioButton("Yes");
         rdoYes.setFont(new Font("", Font.PLAIN, 15));
         rdoYes.setBounds(40, 140, 100, 30);
-        rdoYes.setVerticalAlignment(JLabel.CENTER);
-        rdoYes.setHorizontalAlignment(JLabel.LEFT);
+        rdoYes.setVerticalAlignment(SwingConstants.CENTER);
+        rdoYes.setHorizontalAlignment(SwingConstants.LEFT);
         rdoYes.setOpaque(true);
         rdoYes.setFocusable(false);
         group.add(rdoYes);
@@ -154,8 +147,8 @@ public class PlaceOrder extends JFrame {
         rdoNo = new JRadioButton("No");
         rdoNo.setFont(new Font("", Font.PLAIN, 15));
         rdoNo.setBounds(140, 140, 100, 30);
-        rdoNo.setVerticalAlignment(JLabel.CENTER);
-        rdoNo.setHorizontalAlignment(JLabel.LEFT);
+        rdoNo.setVerticalAlignment(SwingConstants.CENTER);
+        rdoNo.setHorizontalAlignment(SwingConstants.LEFT);
         rdoNo.setOpaque(true);
         rdoNo.setFocusable(false);
         group.add(rdoNo);
@@ -164,7 +157,7 @@ public class PlaceOrder extends JFrame {
             try {
                 txtCustID.setText(CustomerController.generateCustomerId());
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new QueryFailException("Failed to generate new customer ID",e);
             }
             txtCustID.setEditable(false);
             txtCustName.setEditable(true);
@@ -191,7 +184,7 @@ public class PlaceOrder extends JFrame {
                         btnPlaceOrder.setEnabled(true);
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new QueryFailException("Failed to add new customer",e);
             }
         });
         panel1.add(btnOk);
@@ -217,7 +210,7 @@ public class PlaceOrder extends JFrame {
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(null, "Error adding order");
-                throw new RuntimeException(e);
+                throw new QueryFailException("Failed to add new order",e);
             }
             reset(true);
         });
@@ -256,8 +249,8 @@ public class PlaceOrder extends JFrame {
         lblTot.setFont(new Font("", Font.BOLD, 16));
         lblTot.setBounds(130, 255, 140, 30);
         lblTot.setForeground(new Color(185, 82, 77));
-        lblTot.setVerticalAlignment(JLabel.CENTER);
-        lblTot.setHorizontalAlignment(JLabel.CENTER);
+        lblTot.setVerticalAlignment(SwingConstants.CENTER);
+        lblTot.setHorizontalAlignment(SwingConstants.CENTER);
 
         panel2.add(lblTot);
 
@@ -273,8 +266,8 @@ public class PlaceOrder extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(r, g, b));
         button.setOpaque(true);
         button.setFocusable(false);
@@ -298,7 +291,11 @@ public class PlaceOrder extends JFrame {
         btnHome.setEnabled(true);
 
         if (nextID) {
-            lblOID.setText(OrderController.generateOrderId());
+            try {
+                lblOID.setText(OrderController.generateOrderId());
+            } catch (SQLException e) {
+                throw new QueryFailException("Failed to generate new order ID",e);
+            }
         }
 
     }
@@ -309,12 +306,9 @@ public class PlaceOrder extends JFrame {
         ((JSpinner.DefaultEditor) spnQty.getEditor()).getTextField().setEditable(false);
         lblTot.setText(Double.toString(OrderController.generateValue(
                 (Integer)spnQty.getValue())));
-        spnQty.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
+        spnQty.addChangeListener(e ->
                 lblTot.setText(Double.toString(OrderController.generateValue(
-                        (Integer)spnQty.getValue())));
-            }
-          }
+                (Integer)spnQty.getValue())))
         );
         spnQty.setEnabled(isEnabled);
     }

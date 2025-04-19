@@ -6,6 +6,7 @@
 package view;
 
 import controller.CustomerController;
+import exception.QueryFailException;
 import model.CustomerInOrder;
 
 import java.awt.Color;
@@ -41,8 +42,8 @@ public class SearchBestCustomer extends JFrame {
         lblTitle.setFont(new Font("",Font.BOLD,25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185,82,77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -70,7 +71,7 @@ public class SearchBestCustomer extends JFrame {
         try {
             customers = CustomerController.bestCustomer();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new QueryFailException("Failed to load best customer",e);
         }
 
         for(CustomerInOrder customer : customers){
@@ -108,8 +109,8 @@ public class SearchBestCustomer extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, height);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(r, g, b));
         button.setOpaque(true);
         button.setFocusable(false);

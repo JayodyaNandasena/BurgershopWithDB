@@ -6,6 +6,7 @@
 package view;
 
 import controller.OrderController;
+import exception.QueryFailException;
 import model.Orders;
 import model.enums.OrderStatus;
 
@@ -17,13 +18,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -51,8 +46,8 @@ public class ViewOrders extends JFrame {
         lblTitle.setFont(new Font("", Font.BOLD, 25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185, 82, 77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -60,8 +55,8 @@ public class ViewOrders extends JFrame {
         lblMessage = new JLabel("Please select the type of orders to view :");
         lblMessage.setFont(new Font("", Font.BOLD, 17));
         lblMessage.setBounds(30, 50, 700, 50);
-        lblMessage.setVerticalAlignment(JLabel.CENTER);
-        lblMessage.setHorizontalAlignment(JLabel.LEFT);
+        lblMessage.setVerticalAlignment(SwingConstants.CENTER);
+        lblMessage.setHorizontalAlignment(SwingConstants.LEFT);
         add(lblMessage);
         
         group = new ButtonGroup();
@@ -107,7 +102,7 @@ public class ViewOrders extends JFrame {
         tablePane.setOpaque(true);
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER );
         tblCustomerDetails.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
@@ -141,17 +136,17 @@ public class ViewOrders extends JFrame {
 
         if (Objects.equals(status, "ALL")){
             try {
-                orders = OrderController.allWithCustomer();
+                orders = OrderController.all();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new QueryFailException("Failed to retrieve orders",e);
             }
         }else {
             try {
-                orders = OrderController.byStatusWithCustomer(
+                orders = OrderController.byStatus(
                         OrderStatus.valueOf(status)
                 );
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new QueryFailException("Failed to retrieve orders",e);
             }
         }
 
@@ -173,13 +168,12 @@ public class ViewOrders extends JFrame {
         button.setFont(new Font("", Font.PLAIN, 15));
         button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setBackground(new Color(155, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);
         return button;
     }
-    
 }

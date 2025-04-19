@@ -57,7 +57,6 @@ public class SearchOrder extends JFrame {
         
         txtOrderID = new JTextField();
         txtOrderID.setFont(new Font("", Font.PLAIN, 16));
-        //txtCustID.setBounds(WIDTH, WIDTH, WIDTH, HEIGHT);
         txtOrderID.setBounds(300, 60, 215, 30);
         
         btnSearch = createStyledButton("Search", 555, 60, 100, 0, evt -> {
@@ -165,7 +164,7 @@ public class SearchOrder extends JFrame {
         Orders order = new Orders();
 
         try {
-            order = OrderController.byIdWithCustomer(orderId);
+            order = OrderController.byId(orderId);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

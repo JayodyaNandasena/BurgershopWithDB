@@ -7,6 +7,7 @@ package view;
 
 import controller.CustomerController;
 import controller.OrderController;
+import exception.QueryFailException;
 import model.Orders;
 
 import java.awt.Color;
@@ -16,13 +17,7 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -49,8 +44,8 @@ public class SearchCustomer extends JFrame {
         lblTitle.setFont(new Font("", Font.BOLD, 25));
         lblTitle.setBounds(0, 0, 700, 50);
         lblTitle.setForeground(Color.white);
-        lblTitle.setVerticalAlignment(JLabel.CENTER);
-        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+        lblTitle.setVerticalAlignment(SwingConstants.CENTER);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setBackground(new Color(185, 82, 77));
         lblTitle.setOpaque(true);
         add(lblTitle);
@@ -58,36 +53,35 @@ public class SearchCustomer extends JFrame {
         lblCustId = new JLabel("Please enter the customer ID : ");
         lblCustId.setFont(new Font("", Font.BOLD, 17));
         lblCustId.setBounds(30, 60, 270, 30);
-        lblCustId.setVerticalAlignment(JLabel.CENTER);
-        lblCustId.setHorizontalAlignment(JLabel.LEFT);
+        lblCustId.setVerticalAlignment(SwingConstants.CENTER);
+        lblCustId.setHorizontalAlignment(SwingConstants.LEFT);
         
         txtCustID = new JTextField();
         txtCustID.setFont(new Font("", Font.PLAIN, 16));
-        //txtCustID.setBounds(WIDTH, WIDTH, WIDTH, HEIGHT);
         txtCustID.setBounds(300, 60, 215, 30);
         
-        btnSearch = createStyledButton("Search", 555, 60, 100, 30, 0, 82, 77, evt -> {
-            String custId=txtCustID.getText();
-            if(custId.isEmpty()){
+        btnSearch = createStyledButton("Search", 555, 60, 100, 0, evt -> {
+            String customerId=txtCustID.getText();
+            if(customerId.isEmpty()){
                 JOptionPane.showMessageDialog(null, "Please enter a customer ID");
                 txtCustID.setBackground(new Color(250, 205, 212));
             }else{
                 txtCustID.setBackground(new Color(238, 238, 238));
-                loadTable(custId);
+                loadTable(customerId);
             }
         });
         
         lblCustName = new JLabel("Customer Name : ");
         lblCustName.setFont(new Font("", Font.BOLD, 16));
         lblCustName.setBounds(30, 100, 150, 30);
-        lblCustName.setVerticalAlignment(JLabel.CENTER);
-        lblCustName.setHorizontalAlignment(JLabel.LEFT);
+        lblCustName.setVerticalAlignment(SwingConstants.CENTER);
+        lblCustName.setHorizontalAlignment(SwingConstants.LEFT);
         
         lblGetName = new JLabel("");
         lblGetName.setFont(new Font("", Font.PLAIN, 16));
         lblGetName.setBounds(190, 100, 100, 30);
-        lblGetName.setVerticalAlignment(JLabel.CENTER);
-        lblGetName.setHorizontalAlignment(JLabel.LEFT);
+        lblGetName.setVerticalAlignment(SwingConstants.CENTER);
+        lblGetName.setHorizontalAlignment(SwingConstants.LEFT);
         
         String[] columnName={"Order ID", "Quantity", "Order value", "Order Status"};
         tblDefault=new DefaultTableModel(columnName,0);
@@ -101,23 +95,23 @@ public class SearchCustomer extends JFrame {
         tablePane.setOpaque(true);
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER );
         tblCustomerDetails.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
         tblCustomerDetails.getColumnModel().getColumn(3).setCellRenderer( centerRenderer );
         
-        btnHome = createStyledButton("Main Menu", 310, 400, 130, 30, 155, 82, 77, evt -> {
+        btnHome = createStyledButton("Main Menu", 310, 400, 130, 155, evt -> {
             this.setVisible(false);
             new MainMenu().setVisible(true);
         });
         
-        btnBack = createStyledButton("Back", 450, 400, 100, 30, 155, 82, 77, evt -> {
+        btnBack = createStyledButton("Back", 450, 400, 100, 155, evt -> {
             this.setVisible(false);
             new Search().setVisible(true);
         });
         
-        btnExit = createStyledButton("Exit", 560, 400, 100, 30, 155, 82, 77, evt -> {
+        btnExit = createStyledButton("Exit", 560, 400, 100, 155, evt -> {
             System.exit(0);
         });
         
@@ -141,7 +135,7 @@ public class SearchCustomer extends JFrame {
         try {
             customerName = CustomerController.getName(customerId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new QueryFailException("Failed to retrieve customer name",e);
         }
 
         if (customerName == null){
@@ -155,7 +149,7 @@ public class SearchCustomer extends JFrame {
         try {
             orderList = OrderController.byCustomerId(customerId);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new QueryFailException("Failed to retrieve orders",e);
         }
 
         if (orderList.isEmpty()){
@@ -164,25 +158,25 @@ public class SearchCustomer extends JFrame {
         }
 
         for(Orders order: orderList){
-            Object[] rowdata={
+            Object[] rowData={
                     order.getId(),
                     order.getQuantity(),
                     order.getValue(),
                     order.getStatus().toString()
             };
 
-            tblDefault.addRow(rowdata);
+            tblDefault.addRow(rowData);
         }
     }
     
-    private JButton createStyledButton(String text,int x, int y, int width, int height,int r, int g, int b, ActionListener actionListener) {
+    private JButton createStyledButton(String text, int x, int y, int width, int r, ActionListener actionListener) {
         JButton button = new JButton(text);
         button.setFont(new Font("", Font.PLAIN, 15));
-        button.setBounds(x, y, width, height);
+        button.setBounds(x, y, width, 30);
         button.setForeground(Color.white);
-        button.setVerticalAlignment(JLabel.CENTER);
-        button.setHorizontalAlignment(JLabel.CENTER);
-        button.setBackground(new Color(r, g, b));
+        button.setVerticalAlignment(SwingConstants.CENTER);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
+        button.setBackground(new Color(r, 82, 77));
         button.setOpaque(true);
         button.setFocusable(false);
         button.addActionListener(actionListener);
