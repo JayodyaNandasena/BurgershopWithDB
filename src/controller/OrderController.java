@@ -164,7 +164,7 @@ public class OrderController {
     }
 
     // get all with customer by status
-    public static List<Orders> byStatusWithCustomer(OrderStatus status) throws SQLException {
+    public static List<Orders> byStatus(OrderStatus status) throws SQLException {
         try (
                 Connection dbConnection = DBConnection.getConnection();
                 PreparedStatement stmt = dbConnection.prepareStatement(
