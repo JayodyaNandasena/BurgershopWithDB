@@ -135,6 +135,7 @@ public class SearchCustomer extends JFrame {
     }
     
     private void loadTable(String customerId){
+        tblDefault.setRowCount(0);
         String customerName = null;
 
         try {
@@ -149,8 +150,6 @@ public class SearchCustomer extends JFrame {
         }
 
         lblGetName.setText(customerName);
-
-        tblDefault.setRowCount(0);
         List<Orders> orderList = new ArrayList<>();
 
         try {
