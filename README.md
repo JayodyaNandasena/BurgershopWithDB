@@ -65,9 +65,9 @@ A **Java Swing** application to manage a Burger Shop with persistent data storag
 |----------------|--------------|---------------------------------------|
 | `id`     | VARCHAR(5)   | Unique ID starting with 'B'           |
 | `quantity`     | INT          | Number of burgers ordered             |
-| `status`       | INT          | Preparing, Delivered, Cancelled |
-| `value`        | INT          | Total bill (quantity × burger price)           |
-| `customer_id`  | VARCHAR(10)  | Foreign key referencing customer table    |
+| `status`       | ENUM('PREPARING','DELIVERED','CANCELLED')         | Preparing, Delivered, Cancelled |
+| `value`        | DOUBLE(7,2)          | Total bill (quantity × burger price)           |
+| `customer_id`  | VARCHAR(5)  | Foreign key referencing customer table    |
 
 ### Table: `customer`
 
